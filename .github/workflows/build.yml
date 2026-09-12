@@ -16,9 +16,19 @@ jobs:
 
     - name: Extract resources
       run: |
-        mkdir -p resources
-        unzip -q resources.zip -d resources/
-        echo "Resources extracted"
+        python3 -c "
+import zipfile, os
+with zipfile.ZipFile('resources.zip', 'r') as z:
+    for name in z.namelist():
+        fixed = name.replace('\\\\', '/')
+        if fixed.endswith('/'):
+            os.makedirs(fixed, exist_ok=True)
+        else:
+            os.makedirs(os.path.dirname(fixed), exist_ok=True)
+            with z.open(name) as src, open(fixed, 'wb') as dst:
+                dst.write(src.read())
+print('Resources extracted')
+"
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
