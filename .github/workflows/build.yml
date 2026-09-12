@@ -15,27 +15,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Extract resources
-      run: |
-        cat > extract.py << 'PYEOF'
-import zipfile, os
-z = zipfile.ZipFile('resources.zip')
-for n in z.namelist():
-    fixed = n.replace('\\', '/')
-    try:
-        info = z.getinfo(n)
-        if info.is_dir() or fixed.endswith('/'):
-            os.makedirs(fixed, exist_ok=True)
-        else:
-            d = os.path.dirname(fixed)
-            if d:
-                os.makedirs(d, exist_ok=True)
-            with z.open(n) as src, open(fixed, 'wb') as dst:
-                dst.write(src.read())
-    except Exception as e:
-        print(f'Skipping {fixed}: {e}')
-print('Resources extracted')
-PYEOF
-        python3 extract.py
+      run: python3 -c "import zipfile;zin=zipfile.ZipFile('resources.zip','r');zout=zipfile.ZipFile('resources_fixed.zip','w');[setattr(item,'filename',item.filename.replace(chr(92),'/')) or zout.writestr(item,zin.read(item.filename)) for item in zin.infolist()];zout.close();zin.close();print('Fixed zip')" && unzip -q resources_fixed.zip -d resources/ && echo "Resources extracted"
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
