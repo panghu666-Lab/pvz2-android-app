@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 .buildozer/
 bin/
+
+.github/workflows/build.yml
