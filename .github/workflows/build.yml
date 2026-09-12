@@ -35,6 +35,13 @@ jobs:
         pip3 install --upgrade pip
         pip3 install buildozer cython==0.29.36 virtualenv
 
+    - name: Clean up resources
+      run: |
+        cd resources
+        rm -rf artifacts plants zombies costumes costume_fragments icons pursuit_tiers superz_tiers ranks
+        ls -la
+        cd ..
+
     - name: Modify buildozer.spec
       run: |
         sed -i 's/^android.archs.*/android.archs = arm64-v8a/' buildozer.spec
