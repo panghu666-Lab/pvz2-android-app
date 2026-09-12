@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Extract resources
-      run: python3 -c "import zipfile;zin=zipfile.ZipFile('resources.zip','r');zout=zipfile.ZipFile('resources_fixed.zip','w');[setattr(item,'filename',item.filename.replace(chr(92),'/')) or zout.writestr(item,zin.read(item.filename)) for item in zin.infolist()];zout.close();zin.close();print('Fixed zip')" && unzip -q resources_fixed.zip -d resources/ && echo "Resources extracted"
+      run: python3 -c "import zipfile;zin=zipfile.ZipFile('resources.zip','r');zout=zipfile.ZipFile('resources_fixed.zip','w');[setattr(item,'filename',item.filename.replace(chr(92),'/')) or zout.writestr(item,zin.read(item)) for item in zin.infolist()];zout.close();zin.close();print('Fixed zip')" && unzip -q resources_fixed.zip -d resources/ && echo "Resources extracted"
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
