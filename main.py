@@ -139,14 +139,18 @@ class LogOutput(ScrollView):
             font_size='11sp',
             color=get_color_from_hex(COLORS['text']),
             size_hint_y=None,
+            size_hint_x=1,
             height=200,
-            text_size=(self.width, None),
             halign='left',
             valign='top',
             markup=True
         )
         self.log_label.bind(texture_size=self._update_height)
+        self.bind(width=self._update_width)
         self.add_widget(self.log_label)
+    
+    def _update_width(self, instance, value):
+        self.log_label.text_size = (value, None)
     
     def _update_height(self, instance, value):
         instance.height = value[1] + 20

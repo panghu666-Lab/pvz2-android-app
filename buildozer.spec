@@ -16,7 +16,7 @@ source.dir = .
 source.include_exts = py,png,jpg,ttf,json,atlas
 
 # (list) List of inclusions using pattern matching
-source.include_patterns = resources/*,resources/**/*
+source.include_patterns = resources/*,resources/**/*,*.py
 
 # (list) Source files to ignore (let empty to ignore all but the source.include_exts)
 #source.ignore_exts = pyc,pyo

@@ -14,6 +14,13 @@ import time
 # 脚本路径
 SCRIPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pvz2_script.py')
 
+# Android上可能的脚本路径
+ANDROID_SCRIPT_PATHS = [
+    SCRIPT_PATH,
+    os.path.join(os.getcwd(), 'pvz2_script.py'),
+    '/data/data/org.pvz2.pvz2tool/files/app/pvz2_script.py',
+]
+
 
 class ScriptInterface:
     """脚本接口类"""
@@ -34,16 +41,40 @@ class ScriptInterface:
         else:
             print(text)
     
+    def _find_script(self):
+        """查找脚本文件"""
+        for path in ANDROID_SCRIPT_PATHS:
+            if os.path.exists(path):
+                return path
+        return None
+    
     def start(self):
         """启动脚本进程"""
         if self.is_running:
             self.log("脚本已在运行中")
             return
         
+        # 查找脚本文件
+        script_path = self._find_script()
+        if not script_path:
+            self.log(f"错误：找不到脚本文件 pvz2_script.py", "#f44336")
+            self.log(f"当前目录: {os.getcwd()}", "#f44336")
+            self.log(f"脚本目录: {os.path.dirname(os.path.abspath(__file__))}", "#f44336")
+            # 列出当前目录的文件
+            try:
+                files = os.listdir(os.path.dirname(os.path.abspath(__file__)))
+                self.log(f"目录文件: {files}", "#f44336")
+            except:
+                pass
+            return
+        
+        self.log(f"脚本路径: {script_path}", "#2196f3")
+        self.log(f"Python路径: {sys.executable}", "#2196f3")
+        
         try:
             # 启动脚本进程，重定向输入输出
             self.process = subprocess.Popen(
-                [sys.executable, SCRIPT_PATH],
+                [sys.executable, script_path],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
