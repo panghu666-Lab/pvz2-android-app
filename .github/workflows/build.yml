@@ -28,14 +28,6 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Add swap space
-      run: |
-        sudo dd if=/dev/zero of=/swapfile bs=1G count=4
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
-        echo "Swap space added"
-
     - name: Install dependencies
       run: |
         sudo apt-get update
