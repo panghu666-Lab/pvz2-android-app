@@ -8743,15 +8743,6 @@ def run_first_script():
                                 break
                 else:
                     print("今日暂无优质紫卡，自动购买商店僵尸")
-                    item_mapping = {
-                        404018: "飞行器",
-                        404007: "铜人",
-                        404010: "冰鼬",
-                        404016: "魔法师",
-                        404029: "辣椒",
-                        404047: "火把武僧",
-                        404072: "遗迹猎人"
-                    }
                     for idx, item in enumerate(shop_items):
                         obj_id = item.get('objId')
                         price_value = item.get('price')
@@ -8760,7 +8751,7 @@ def run_first_script():
                         ti_value = limit - times
                         if ti_value <= 0:
                             continue
-                        item_name = item_mapping.get(obj_id, f"僵尸{obj_id}")
+                        item_name = formatted_plant.get(str(obj_id), {}).get("name", f"僵尸{obj_id}")
                         message_dict = {"req":"V392","e":{"ci":"6","gi":idx,"mi":"23243","pi":pi,"q":"1","si":"14","sk":sk,"ui":ui},"ev":3}
                         for _ in range(int(ti_value)):
                             encrypted_data, head = get_encrypted_data(message_dict, url)
@@ -19486,4 +19477,37 @@ if __name__ == "__main__":
 # bmFtZSI6ICJRUS03NDA4NzQ1MzAiLCAidWkiOiAiNzQwODc0NTMwIiwgInBsYXRmb3JtIjogIuWuieWN
 # kyIsICJuaWNrbmFtZSI6ICLliJrnlLDmraYiLCAiY2ZnIjogeyJvaSI6ICJCNzk3MDc2MDYxQkEwQzI5
 # QjkwNUQ1OEEzOUEzNjdGNyIsICJhY2Nlc3NfdG9rZW4iOiAiREU5MzQxNjMzMUM3MkIyNzk2MDU3MThF
-# NzczQzNGQjEiLCAiY29kZSI6ICJRUSJ9fV0=
+# NzczQzNGQjEiLCAiY29kZSI6ICJRUSJ9fSwgeyJpZCI6IDQsICJuYW1lIjogIuWumOacjS0xNTI1MjM3
+# NzUyMCIsICJ1aSI6ICI4MjI1NDkzNjIiLCAicGxhdGZvcm0iOiAi5a6J5Y2TIiwgIm5pY2tuYW1lIjog
+# IueJouWkp+i2heeEtuiCmOWHuyIsICJjZmciOiB7ImNoYW5uZWxfaWQiOiAyMDgsICJjaGFubmVsU2Rr
+# VmVyc2lvbiI6ICJkajIuMC00LjAuMCIsICJwdCI6IHsidXNlcmlkIjogIjE1MjUyMzc3NTIwIiwgInBh
+# c3N3b3JkIjogImNoZW55aTIwMDRAIn19fSwgeyJpZCI6IDUsICJuYW1lIjogIuWwj+exsy03MzcyODkw
+# MjMiLCAidWkiOiAiNzM3Mjg5MDIzIiwgInBsYXRmb3JtIjogIuWuieWNkyIsICJuaWNrbmFtZSI6ICJN
+# ci5SaWdodCIsICJjZmciOiB7ImFjY291bnQiOiB7ImFjY291bnROYW1lIjogIum7mOiupOW4kOWPtyIs
+# ICJhY2NvdW50VHJhZGVJbmZvIjogbnVsbCwgImFjdGlvbiI6IDAsICJhcHBBY2NvdW50SWQiOiAyMDIz
+# MTAyMzAwMDk0MTgzLCAiZXJyTXNnIjogIiIsICJoYXNUcmFkZSI6IGZhbHNlLCAiaXNBZHVsdCI6IGZh
+# bHNlLCAiaXNOZXdVc2VyIjogZmFsc2UsICJpc1JlYWxOYW1lIjogZmFsc2UsICJsYXN0TG9naW5UaW1l
+# IjogMTc4OTE3NTcwOTg2MSwgIm5pY2tOYW1lIjogIuWwj+aEjyIsICJvcGVuSWRTd2l0Y2giOiBmYWxz
+# ZSwgIm9wZW5JZHMiOiBbeyJhY2NvdW50TmFtZSI6ICLpu5jorqTluJDlj7ciLCAibGFzdExvZ2luVGlt
+# ZSI6IDE3ODkxNzU3MTAwMDAsICJvcGVuSWQiOiAyMDIzMTAyMzAwMDk0MTgzLCAic3RhdHVzIjogMX1d
+# LCAicmV0Q29kZSI6IDIwMCwgInJpc2tDb2RlIjogMCwgInJpc2tNc2ciOiBudWxsLCAic2VydmljZVRv
+# a2VuIjogIntcInNlc3Npb25cIjpcIlI1b2pWMXlOU29NSUMyY1hcIixcImtleVwiOlwiTHBzZ3Y1MmFz
+# S2IzV3Z3TFwiLFwidWlkXCI6MTQ1MDI1Njc4NyxcInRcIjoxNzg5MjI4OTU2NTQwLFwibmlja05hbWVc
+# IjpudWxsLFwiYWtleVwiOlwiNEY0MjYyNTk3NzMwNjY2NDY3NDEzNzMxNDU2MTc4NEJcIixcImxhc3RD
+# aGVja0F1dGhUaW1lXCI6MTc4OTIyODk1NjU0MCxcIm1pZFwiOjI2ODE3MTgyNzd9IiwgInNlc3Npb24i
+# OiAiS3pOcHpVVGJLZWtSVjkzRSIsICJ1bmlvbklkIjogIiJ9LCAiZ2FtZSI6IHsiYXBwQWNjb3VudElk
+# IjogMjAyMzEwMjMwMDA5NDE4MywgIm5pY2tOYW1lIjogIuWwj+aEjyIsICJvaSI6ICIyMDIzMTAyMzAw
+# MDk0MTgzIiwgIm9wZW5JZCI6IDIwMjMxMDIzMDAwOTQxODMsICJzZXJ2aWNlVG9rZW4iOiAie1wic2Vz
+# c2lvblwiOlwiUjVvalYxeU5Tb01JQzJjWFwiLFwia2V5XCI6XCJMcHNndjUyYXNLYjNXdndMXCIsXCJ1
+# aWRcIjoxNDUwMjU2Nzg3LFwidFwiOjE3ODkyMjg5NTY1NDAsXCJuaWNrTmFtZVwiOm51bGwsXCJha2V5
+# XCI6XCI0RjQyNjI1OTc3MzA2NjY0Njc0MTM3MzE0NTYxNzg0QlwiLFwibGFzdENoZWNrQXV0aFRpbWVc
+# IjoxNzg5MjI4OTU2NTQwLFwibWlkXCI6MjY4MTcxODI3N30iLCAic2Vzc2lvbiI6ICJLek5welVUYktl
+# a1JWOTNFIiwgInQiOiAiXzAxMDRfTHZGdk10dzVraHIvd1ByVVZUK0RiNkpnMjBaTWdzUHZHdGtEeVha
+# cVZWNXc3UGhhdlprR1VxOHhlNzR2bGRaMSJ9LCAib2F1dGgiOiB7ImNvZGUiOiAwLCAiaGVhZGltZ3Vy
+# bCI6ICJodHRwczovL3BpYy5rdHMuZy5taS5jb20vMTQ1MDI1Njc4N18xNzQ4NDExMDE3NzczIiwgIm1p
+# ZCI6ICIyNjgxNzE4Mjc3IiwgIm1zZyI6ICIiLCAibmVlZEJpbmRNaWQiOiBmYWxzZSwgIm5pY2tuYW1l
+# IjogIui1q+acrOeahOeGiiIsICJwdCI6ICJfMDEwNF9MdkZ2TXR3NWtoci93UHJVVlQrRGI2SmcyMFpN
+# Z3NQdkd0a0R5WFpxVlY1dzdQaGF2WmtHVXE4eGU3NHZsZFoxIiwgInNleCI6IDIsICJza2V5IjogIkFD
+# bEJmNlZtZXozNkk5dEYiLCAic3QiOiAiXzAxMDRfTHZGdk10dzVraHIvd1ByVVZUK0RiNkpnMjBaTWdz
+# UHZHdGtEeVhacVZWNXc3UGhhdlprR1VxOHhlNzR2bGRaMSIsICJ1dWlkIjogIjE0NTAyNTY3ODcifSwg
+# Im9rIjogdHJ1ZSwgImNvZGUiOiAi5bCP57GzIn19XQ==
