@@ -22,9 +22,6 @@ from kivy.core.text import LabelBase
 from kivy.graphics import Color, Rectangle
 from kivy.utils import get_color_from_hex
 
-# 设置窗口大小（手机竖屏）
-Window.size = (400, 700)
-
 # 注册中文字体
 FONT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'zt3.ttf')
 if os.path.exists(FONT_PATH):
@@ -47,11 +44,11 @@ COLORS = {
     'accent': '#e94560',
     'text': '#ffffff',
     'text_dim': '#a0a0a0',
-    'green': '#4caf50',
-    'blue': '#2196f3',
-    'orange': '#ff9800',
-    'purple': '#9c27b0',
-    'red': '#f44336',
+    'green': '#2e7d32',
+    'blue': '#1565c0',
+    'orange': '#e65100',
+    'purple': '#6a1b9a',
+    'red': '#c62828',
 }
 
 # 导入脚本接口
@@ -94,8 +91,9 @@ class ColoredButton(Button):
         self.background_color = get_color_from_hex(bg_color)
         self.color = get_color_from_hex(text_color)
         self.font_name = 'ChineseFont'
+        self.font_size = '14sp'
         self.size_hint_y = None
-        self.height = 45
+        self.height = 40
         self.bind(on_press=self._on_press)
         self.bind(on_release=self._on_release)
     
@@ -116,9 +114,9 @@ class MenuButton(Button):
         self.background_color = get_color_from_hex(bg_color)
         self.color = get_color_from_hex(COLORS['text'])
         self.font_name = 'ChineseFont'
-        self.font_size = '13sp'
-        self.size_hint = (None, None)
-        self.size = (110, 80)
+        self.font_size = '12sp'
+        self.size_hint = (1, None)
+        self.height = 60
         self.bind(on_press=self._on_press)
         self.bind(on_release=self._on_release)
     
@@ -126,7 +124,7 @@ class MenuButton(Button):
         self.background_color = get_color_from_hex(COLORS['accent'])
     
     def _on_release(self, instance):
-        self.background_color = get_color_from_hex(COLORS['card'])
+        self.background_color = get_color_from_hex(self._original_color)
 
 
 class LogOutput(ScrollView):
@@ -134,7 +132,7 @@ class LogOutput(ScrollView):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.size_hint_y = 0.45
+        self.size_hint_y = 1
         self.log_label = Label(
             text='',
             font_name='ChineseFont',
@@ -170,8 +168,8 @@ class MainScreen(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
-        self.padding = 8
-        self.spacing = 8
+        self.padding = 10
+        self.spacing = 10
         
         # 资源管理器
         self.resource_manager = ResourceManager()
@@ -187,11 +185,11 @@ class MainScreen(BoxLayout):
         self._create_log_area()
     
     def _create_header(self):
-        header = BoxLayout(orientation='horizontal', size_hint_y=0.07, spacing=8)
+        header = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=10)
         
         logo_path = os.path.join(RESOURCE_PATH, 'logo.png')
         if os.path.exists(logo_path):
-            logo = Image(source=logo_path, size_hint_x=0.12, allow_stretch=True)
+            logo = Image(source=logo_path, size_hint_x=None, width=40, allow_stretch=True)
             header.add_widget(logo)
         
         title = Label(
@@ -199,7 +197,7 @@ class MainScreen(BoxLayout):
             font_name='ChineseFont',
             font_size='18sp',
             color=get_color_from_hex(COLORS['accent']),
-            size_hint_x=0.55,
+            size_hint_x=0.6,
             halign='left'
         )
         header.add_widget(title)
@@ -207,9 +205,9 @@ class MainScreen(BoxLayout):
         self.status_label = Label(
             text='未登录',
             font_name='ChineseFont',
-            font_size='11sp',
+            font_size='12sp',
             color=get_color_from_hex(COLORS['text_dim']),
-            size_hint_x=0.33,
+            size_hint_x=0.3,
             halign='right'
         )
         header.add_widget(self.status_label)
@@ -217,9 +215,9 @@ class MainScreen(BoxLayout):
         self.add_widget(header)
     
     def _create_menu(self):
-        menu_scroll = ScrollView(size_hint_y=0.48, do_scroll_x=False)
+        menu_scroll = ScrollView(size_hint_y=None, height=280, do_scroll_x=False)
         
-        menu_grid = GridLayout(cols=3, spacing=8, padding=8, size_hint_y=None)
+        menu_grid = GridLayout(cols=3, spacing=8, padding=5, size_hint_y=None)
         menu_grid.bind(minimum_height=menu_grid.setter('height'))
         
         # 菜单配置：(名称, 菜单路径, 颜色)
@@ -244,20 +242,21 @@ class MainScreen(BoxLayout):
                 bg_color=color,
                 on_press=lambda x, mp=menu_path: self._on_menu_click(mp)
             )
+            btn._original_color = color
             menu_grid.add_widget(btn)
         
         menu_scroll.add_widget(menu_grid)
         self.add_widget(menu_scroll)
     
     def _create_log_area(self):
-        log_container = BoxLayout(orientation='vertical', size_hint_y=0.45, spacing=5)
+        log_container = BoxLayout(orientation='vertical', size_hint_y=1, spacing=8)
         
         # 日志标题栏
-        title_bar = BoxLayout(orientation='horizontal', size_hint_y=0.08)
+        title_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=35)
         log_title = Label(
             text='运行日志',
             font_name='ChineseFont',
-            font_size='13sp',
+            font_size='14sp',
             color=get_color_from_hex(COLORS['accent']),
             halign='left'
         )
@@ -266,7 +265,8 @@ class MainScreen(BoxLayout):
         clear_btn = ColoredButton(
             text='清空',
             bg_color=COLORS['card'],
-            size_hint_x=0.2,
+            size_hint_x=None,
+            width=60,
             height=30,
             on_press=lambda x: self.log_output.clear()
         )
@@ -279,11 +279,11 @@ class MainScreen(BoxLayout):
         log_container.add_widget(self.log_output)
         
         # 输入区域
-        input_container = BoxLayout(orientation='horizontal', size_hint_y=0.12, spacing=5)
+        input_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=45, spacing=8)
         
         self.input_field = TextInput(
             font_name='ChineseFont',
-            font_size='12sp',
+            font_size='13sp',
             background_color=get_color_from_hex(COLORS['bg_light']),
             foreground_color=get_color_from_hex(COLORS['text']),
             cursor_color=get_color_from_hex(COLORS['accent']),
@@ -295,7 +295,9 @@ class MainScreen(BoxLayout):
         send_btn = ColoredButton(
             text='发送',
             bg_color=COLORS['accent'],
-            size_hint_x=0.2,
+            size_hint_x=None,
+            width=70,
+            height=40,
             on_press=self._on_send
         )
         input_container.add_widget(send_btn)
