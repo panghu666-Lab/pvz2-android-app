@@ -38,7 +38,7 @@ jobs:
     - name: Build APK
       run: |
         cd $GITHUB_WORKSPACE
-        buildozer android debug
+        yes | buildozer android debug
       env:
         ANDROID_HOME: /opt/android-sdk
         ANDROID_NDK_HOME: /opt/android-ndk
