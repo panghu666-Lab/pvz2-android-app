@@ -1,0 +1,6 @@
+﻿resources_backup/
+resources/
+__pycache__/
+*.pyc
+.buildozer/
+bin/
