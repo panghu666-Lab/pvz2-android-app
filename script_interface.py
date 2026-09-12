@@ -11,14 +11,17 @@ import threading
 import queue
 import time
 
-# 脚本路径
-SCRIPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pvz2_script.py')
+# 脚本路径（同时支持.py和.pyc）
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Android上可能的脚本路径
+# Android上可能的脚本路径（同时支持.py和.pyc）
 ANDROID_SCRIPT_PATHS = [
-    SCRIPT_PATH,
+    os.path.join(SCRIPT_DIR, 'pvz2_script.py'),
+    os.path.join(SCRIPT_DIR, 'pvz2_script.pyc'),
     os.path.join(os.getcwd(), 'pvz2_script.py'),
+    os.path.join(os.getcwd(), 'pvz2_script.pyc'),
     '/data/data/org.pvz2.pvz2tool/files/app/pvz2_script.py',
+    '/data/data/org.pvz2.pvz2tool/files/app/pvz2_script.pyc',
 ]
 
 
