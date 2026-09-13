@@ -19,6 +19,7 @@ from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.textinput import TextInput
 from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.floatlayout import FloatLayout
 from kivy.core.window import Window
 from kivy.core.text import LabelBase
 from kivy.graphics import Color, Ellipse, Rectangle, RoundedRectangle
@@ -140,8 +141,8 @@ class IconButton(ButtonBehavior, BoxLayout):
         self._bg_color = bg_color if bg_color else COLORS['icon_bg']
         self._original_color = self._bg_color
         
-        # 圆形图标背景
-        self.icon_container = BoxLayout(
+        # 圆形图标背景 - 使用FloatLayout支持pos_hint居中
+        self.icon_container = FloatLayout(
             size_hint=(None, None),
             size=(70, 70),
             pos_hint={'center_x': 0.5}
