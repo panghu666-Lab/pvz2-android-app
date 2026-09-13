@@ -2,7 +2,7 @@
 """
 PVZ2脚本工具 - Android APP版本
 基于Kivy框架，集成植物大战僵尸2脚本功能
-V9 - 全面优化版，稳定+美观
+V10 - 稳定美化版，基于V8，只做安全优化
 """
 
 import os
@@ -47,7 +47,6 @@ except:
 # 颜色定义 - 大学狗工具风格
 COLORS = {
     'bg': '#fdf2f8',           # 浅粉色背景
-    'card': '#ffffff',          # 白色卡片
     'btn_bg': '#e9d5ff',       # 淡紫色按钮背景
     'btn_pressed': '#c4b5fd',  # 按下时的紫色
     'accent': '#7c3aed',       # 紫色强调色
@@ -55,7 +54,7 @@ COLORS = {
     'text': '#1f2937',         # 深色文字
     'text_dim': '#6b7280',     # 灰色文字
     'text_light': '#ffffff',   # 白色文字
-    'log_bg': '#fafafa',       # 日志背景
+    'log_bg': '#ffffff',       # 日志背景
 }
 
 # 导入脚本接口
@@ -64,16 +63,6 @@ try:
     SCRIPT_AVAILABLE = True
 except:
     SCRIPT_AVAILABLE = False
-
-
-def get_icon_path(icon_name):
-    """获取图标路径"""
-    if not icon_name:
-        return None
-    path = os.path.join(RESOURCE_PATH, f'icon_{icon_name}.png')
-    if os.path.exists(path):
-        return path
-    return None
 
 
 class LogOutput(ScrollView):
@@ -116,7 +105,7 @@ class LogOutput(ScrollView):
 
 
 class MainScreen(BoxLayout):
-    """主界面 - V9全面优化版"""
+    """主界面 - V10稳定美化版"""
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -179,11 +168,11 @@ class MainScreen(BoxLayout):
         self.add_widget(header)
     
     def _create_button_area(self):
-        """创建功能按钮区域 - 优化版"""
+        """创建功能按钮区域"""
         # 标题
         title_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=25)
         title = Label(
-            text='✨ 功能菜单',
+            text='功能菜单',
             font_name='ChineseFont',
             font_size='15sp',
             color=get_color_from_hex(COLORS['accent']),
@@ -193,8 +182,8 @@ class MainScreen(BoxLayout):
         title_row.add_widget(title)
         self.add_widget(title_row)
         
-        # 按钮网格 - 调整高度确保所有按钮都能显示
-        btn_scroll = ScrollView(size_hint_y=None, height=320, do_scroll_x=False)
+        # 按钮网格 - 确保所有12个按钮都能显示
+        btn_scroll = ScrollView(size_hint_y=None, height=340, do_scroll_x=False)
         btn_grid = GridLayout(
             cols=3,
             spacing=10,
@@ -203,77 +192,45 @@ class MainScreen(BoxLayout):
         )
         btn_grid.bind(minimum_height=btn_grid.setter('height'))
         
-        # 菜单配置：(名称, 菜单路径, 图标名称)
+        # 菜单配置：(名称, 菜单路径, emoji)
         menu_items = [
-            ('登录账号', ['32'], 'diamond'),
-            ('一键日常', ['30'], 'coin'),
-            ('批量养号', ['31'], None),
-            ('植物升阶', ['17', '2'], 'book'),
-            ('装扮合成', ['17', '3'], 'costume'),
-            ('追击刷分', ['5', '1'], 'pursuit'),
-            ('无尽商店', ['6', '5'], 'endless'),
-            ('无尽刷币', ['6', '2'], 'coin'),
-            ('转基因', ['17', '1'], 'gene'),
-            ('活动领取', ['1'], 'ticket'),
-            ('存档管理', ['18'], None),
-            ('停止脚本', ['__stop__'], None),
+            ('登录账号', ['32'], '👤'),
+            ('一键日常', ['30'], '📋'),
+            ('批量养号', ['31'], '👥'),
+            ('植物升阶', ['17', '2'], '🌱'),
+            ('装扮合成', ['17', '3'], '👗'),
+            ('追击刷分', ['5', '1'], '🏆'),
+            ('无尽商店', ['6', '5'], '🏪'),
+            ('无尽刷币', ['6', '2'], '💰'),
+            ('转基因', ['17', '1'], '🧬'),
+            ('活动领取', ['1'], '🎁'),
+            ('存档管理', ['18'], '💾'),
+            ('停止脚本', ['__stop__'], '⏹️'),
         ]
         
-        # emoji备用图标
-        emoji_map = {
-            '登录账号': '👤', '一键日常': '📋', '批量养号': '👥',
-            '植物升阶': '🌱', '装扮合成': '👗', '追击刷分': '🏆',
-            '无尽商店': '🏪', '无尽刷币': '💰', '转基因': '🧬',
-            '活动领取': '🎁', '存档管理': '💾', '停止脚本': '⏹️'
-        }
-        
-        for name, menu_path, icon_name in menu_items:
-            icon_path = get_icon_path(icon_name)
-            
-            # 创建按钮
+        for name, menu_path, emoji in menu_items:
             btn = Button(
-                text=name,
+                text=f'{emoji}\n{name}',
                 font_name='ChineseFont',
-                font_size='12sp',
+                font_size='13sp',
                 color=get_color_from_hex(COLORS['text']),
                 size_hint=(1, None),
-                height=90,
+                height=95,
                 background_normal='',
                 background_color=get_color_from_hex(COLORS['btn_bg']),
                 on_press=lambda x, mp=menu_path: self._on_menu_click(mp)
             )
-            
-            # 如果有图标，用background_normal显示图标（图标在上，文字在下的效果用换行实现）
-            if icon_path:
-                try:
-                    # 用一个带图标的布局：图标作为背景，文字在底部
-                    btn.background_normal = icon_path
-                    btn.background_down = icon_path
-                    # 文字放在底部，用padding实现
-                    btn.text_size = (None, None)
-                    btn.valign = 'bottom'
-                    btn.padding = [0, 0, 0, 5]
-                    btn.color = get_color_from_hex(COLORS['text'])
-                    btn.font_size = '11sp'
-                except:
-                    # 如果图标设置失败，用emoji
-                    btn.text = f'{emoji_map.get(name, "📱")}\n{name}'
-            else:
-                # 没有图标，用emoji
-                btn.text = f'{emoji_map.get(name, "📱")}\n{name}'
-                btn.font_size = '12sp'
-            
             btn_grid.add_widget(btn)
         
         btn_scroll.add_widget(btn_grid)
         self.add_widget(btn_scroll)
     
     def _create_log_area(self):
-        """创建日志输出区域 - 优化版"""
+        """创建日志输出区域"""
         # 标题行
         log_title_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=28)
         log_title = Label(
-            text='📋 运行日志',
+            text='运行日志',
             font_name='ChineseFont',
             font_size='14sp',
             color=get_color_from_hex(COLORS['accent']),
@@ -296,30 +253,25 @@ class MainScreen(BoxLayout):
         log_title_row.add_widget(clear_btn)
         self.add_widget(log_title_row)
         
-        # 日志卡片背景
-        log_card = BoxLayout(size_hint_y=1, padding=8)
-        with log_card.canvas.before:
-            from kivy.graphics import Color, RoundedRectangle
-            Color(*get_color_from_hex(COLORS['card']))
-            self.log_rect = RoundedRectangle(pos=log_card.pos, size=log_card.size, radius=[8])
-        log_card.bind(pos=self._update_log_rect, size=self._update_log_rect)
+        # 日志区域 - 用白色背景的BoxLayout包裹，不使用canvas
+        log_container = BoxLayout(size_hint_y=1, padding=2)
+        log_container.background_color = get_color_from_hex(COLORS['log_bg'])
         
         self.log_output = LogOutput()
-        log_card.add_widget(self.log_output)
-        self.add_widget(log_card)
+        log_container.add_widget(self.log_output)
+        self.add_widget(log_container)
     
     def _create_input_area(self):
-        """创建输入区域 - 优化版"""
+        """创建输入区域"""
         input_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=45, spacing=8)
         self.input_field = TextInput(
             font_name='ChineseFont',
             font_size='13sp',
-            background_color=get_color_from_hex(COLORS['card']),
+            background_color=get_color_from_hex('#ffffff'),
             foreground_color=get_color_from_hex(COLORS['text']),
             cursor_color=get_color_from_hex(COLORS['accent']),
             multiline=False,
-            hint_text='输入命令...',
-            padding=[10, 10, 10, 10]
+            hint_text='输入命令...'
         )
         input_row.add_widget(self.input_field)
         
@@ -328,7 +280,7 @@ class MainScreen(BoxLayout):
             font_name='ChineseFont',
             font_size='14sp',
             size_hint=(None, None),
-            size=(65, 40),
+            size=(60, 40),
             background_normal='',
             background_color=get_color_from_hex(COLORS['accent']),
             color=get_color_from_hex(COLORS['text_light']),
@@ -336,12 +288,6 @@ class MainScreen(BoxLayout):
         )
         input_row.add_widget(send_btn)
         self.add_widget(input_row)
-    
-    def _update_log_rect(self, instance, value):
-        """更新日志卡片背景位置"""
-        if hasattr(self, 'log_rect'):
-            self.log_rect.pos = instance.pos
-            self.log_rect.size = instance.size
     
     def _on_menu_click(self, menu_path):
         """菜单点击事件"""
