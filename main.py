@@ -330,13 +330,12 @@ class MainScreen(BoxLayout):
         self.add_widget(header)
     
     def _get_icon_path(self, icon_name):
-        """获取图标路径"""
+        """获取图标路径（使用英文文件名避免编码问题）"""
         if not icon_name:
             return None
         # 尝试多种路径（图标放在resources根目录，避免被清理步骤删除）
         paths = [
             os.path.join(RESOURCE_PATH, f'icon_{icon_name}.png'),
-            os.path.join(RESOURCE_PATH, 'icons', f'{icon_name}.png'),
         ]
         for path in paths:
             if os.path.exists(path):
@@ -431,16 +430,16 @@ class MainScreen(BoxLayout):
         
         # 菜单配置：(名称, 菜单路径, 图标名称)
         menu_items = [
-            ('登录账号', ['32'], '钻石'),
-            ('一键日常', ['30'], '金币'),
+            ('登录账号', ['32'], 'diamond'),
+            ('一键日常', ['30'], 'coin'),
             ('批量养号', ['31'], None),
-            ('植物升阶', ['17', '2'], '进阶书'),
-            ('装扮合成', ['17', '3'], '装扮券'),
-            ('追击刷分', ['5', '1'], '追击币'),
-            ('无尽商店', ['6', '5'], '无尽币'),
-            ('无尽刷币', ['6', '2'], '金币'),
-            ('转基因', ['17', '1'], '基因原质'),
-            ('活动领取', ['1'], '秘宝券'),
+            ('植物升阶', ['17', '2'], 'book'),
+            ('装扮合成', ['17', '3'], 'costume'),
+            ('追击刷分', ['5', '1'], 'pursuit'),
+            ('无尽商店', ['6', '5'], 'endless'),
+            ('无尽刷币', ['6', '2'], 'coin'),
+            ('转基因', ['17', '1'], 'gene'),
+            ('活动领取', ['1'], 'ticket'),
             ('存档管理', ['18'], None),
             ('停止脚本', ['__stop__'], None),
         ]
