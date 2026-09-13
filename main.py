@@ -52,20 +52,19 @@ def get_resource_path():
 
 RESOURCE_PATH = get_resource_path()
 FONT_PATH = os.path.join(RESOURCE_PATH, 'zt3.ttf')
-ICON_PATH = os.path.join(RESOURCE_PATH, 'icons')
 ITEM_DICT_PATH = os.path.join(RESOURCE_PATH, 'item_dict.json')
 
 debug_print(f"RESOURCE_PATH: {RESOURCE_PATH}")
 debug_print(f"FONT_PATH: {FONT_PATH}, exists: {os.path.exists(FONT_PATH)}")
-debug_print(f"ICON_PATH: {ICON_PATH}, exists: {os.path.exists(ICON_PATH)}")
 
-# 列出icons目录的文件
-if os.path.exists(ICON_PATH):
-    try:
-        icon_files = os.listdir(ICON_PATH)
-        debug_print(f"icons目录文件: {icon_files}")
-    except Exception as e:
-        debug_print(f"列出icons目录失败: {e}")
+# 列出resources目录下的图标文件
+try:
+    all_files = os.listdir(RESOURCE_PATH)
+    icon_files = [f for f in all_files if f.startswith('icon_') and f.endswith('.png')]
+    debug_print(f"resources目录图标文件: {icon_files}")
+    debug_print(f"resources目录所有文件: {all_files}")
+except Exception as e:
+    debug_print(f"列出resources目录失败: {e}")
 
 if os.path.exists(FONT_PATH):
     LabelBase.register(name='ChineseFont', fn_regular=FONT_PATH)
@@ -334,9 +333,9 @@ class MainScreen(BoxLayout):
         """获取图标路径"""
         if not icon_name:
             return None
-        # 尝试多种路径
+        # 尝试多种路径（图标放在resources根目录，避免被清理步骤删除）
         paths = [
-            os.path.join(ICON_PATH, f'{icon_name}.png'),
+            os.path.join(RESOURCE_PATH, f'icon_{icon_name}.png'),
             os.path.join(RESOURCE_PATH, 'icons', f'{icon_name}.png'),
         ]
         for path in paths:
