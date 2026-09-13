@@ -8534,18 +8534,18 @@ def run_first_script():
                 else:
                     print("幸运宝箱领取成功")
                     gifts = decrypted_json['e']['d']['gift']
-                    gifts = gifts[0]
-                    for gift in gifts:
-                        i_value = str(gift.get('i', ""))
-                        q_value = gift.get('q', 0)
-                        plant_info = formatted_plant.get(
-                            i_value,
-                            {"name": f"未知物品({i_value})", "pinzhi": "default"}
-                        )
-                        plant_name = plant_info["name"]
-                        plant_pinzhi = plant_info["pinzhi"]
-                        color_code = pinzhi_to_color.get(plant_pinzhi, pinzhi_to_color["default"])
-                        print(f"获得的道具为: {color_code}{plant_name}{RESET_COLOR} × {q_value}")
+                    for gift_group in gifts:
+                        for gift in gift_group:
+                            i_value = str(gift.get('i', ""))
+                            q_value = gift.get('q', 0)
+                            plant_info = formatted_plant.get(
+                                i_value,
+                                {"name": f"未知物品({i_value})", "pinzhi": "default"}
+                            )
+                            plant_name = plant_info["name"]
+                            plant_pinzhi = plant_info["pinzhi"]
+                            color_code = pinzhi_to_color.get(plant_pinzhi, pinzhi_to_color["default"])
+                            print(f"获得的道具为: {color_code}{plant_name}{RESET_COLOR} × {q_value}")
         data = {"req": "V402", "e": {"am": "30", "pi": pi, "sk": sk, "ui": ui, "v": 版本号}, "ev": 3}
         encrypted_data, head = get_encrypted_data(data, url)
         response = _do_post(head, encrypted_data, data)
@@ -8745,6 +8745,9 @@ def run_first_script():
                     print("今日暂无优质紫卡，自动购买商店僵尸")
                     for idx, item in enumerate(shop_items):
                         obj_id = item.get('objId')
+                        # 只购买僵尸类物品（ID在404000-404999范围内）
+                        if not (404000 <= obj_id <= 404999):
+                            continue
                         price_value = item.get('price')
                         limit = item.get('limit', 0)
                         times = item.get('times', 0)
