@@ -2,12 +2,11 @@
 """
 PVZ2脚本工具 - Android APP版本
 基于Kivy框架，集成植物大战僵尸2脚本功能
-大学狗工具风格UI V7 - 完全重写
+V8 - 稳定版，确保能正常打开
 """
 
 import os
 import sys
-import json
 import time
 import threading
 from kivy.app import App
@@ -16,31 +15,19 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.image import Image
 from kivy.uix.textinput import TextInput
-from kivy.uix.behaviors import ButtonBehavior
 from kivy.core.window import Window
 from kivy.core.text import LabelBase
-from kivy.graphics import Color, Ellipse, Rectangle, RoundedRectangle
 from kivy.utils import get_color_from_hex
-
-# 全局调试日志
-debug_logs = []
-
-def debug_print(msg):
-    """调试打印"""
-    debug_logs.append(msg)
-    print(f"[DEBUG] {msg}")
 
 # 注册中文字体
 def get_resource_path():
-    """获取资源路径，兼容Android和PC"""
+    """获取资源路径"""
     possible_paths = [
         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources'),
         '/data/data/org.pvz2.pvz2tool/files/app/resources',
         os.path.join(os.getcwd(), 'resources'),
     ]
-    
     for path in possible_paths:
         if os.path.exists(path):
             return path
@@ -49,20 +36,20 @@ def get_resource_path():
 RESOURCE_PATH = get_resource_path()
 FONT_PATH = os.path.join(RESOURCE_PATH, 'zt3.ttf')
 
-if os.path.exists(FONT_PATH):
-    LabelBase.register(name='ChineseFont', fn_regular=FONT_PATH)
-else:
-    try:
+try:
+    if os.path.exists(FONT_PATH):
+        LabelBase.register(name='ChineseFont', fn_regular=FONT_PATH)
+    else:
         LabelBase.register(name='ChineseFont', fn_regular='/system/fonts/DroidSansFallback.ttf')
-    except:
-        LabelBase.register(name='ChineseFont', fn_regular=None)
+except:
+    pass
 
-# 颜色定义 - 大学狗工具风格
+# 颜色定义
 COLORS = {
     'bg': '#fdf2f8',
     'card': '#ffffff',
-    'icon_bg': '#e9d5ff',
-    'icon_bg_pressed': '#c4b5fd',
+    'btn_bg': '#e9d5ff',
+    'btn_pressed': '#c4b5fd',
     'accent': '#7c3aed',
     'green': '#16a34a',
     'text': '#1f2937',
@@ -74,93 +61,8 @@ COLORS = {
 try:
     from script_interface import ScriptInterface
     SCRIPT_AVAILABLE = True
-except Exception as e:
-    debug_print(f"导入脚本接口失败: {e}")
+except:
     SCRIPT_AVAILABLE = False
-
-
-class IconButton(Button):
-    """圆形图标按钮 - 大学狗工具风格
-    使用Button的background_normal显示图标，更可靠
-    """
-    
-    def __init__(self, text='', icon_source=None, **kwargs):
-        super().__init__(**kwargs)
-        
-        self.text = text
-        self.font_name = 'ChineseFont'
-        self.font_size = '11sp'
-        self.color = get_color_from_hex(COLORS['text'])
-        self.size_hint = (1, None)
-        self.height = 110
-        self.background_normal = ''
-        self.background_color = (0, 0, 0, 0)  # 透明背景
-        
-        # 图标是否加载成功
-        self._icon_loaded = False
-        
-        # 尝试加载图标
-        if icon_source and os.path.exists(icon_source):
-            try:
-                # 用background_down和background_normal来显示图标
-                self.background_normal = icon_source
-                self.background_down = icon_source
-                self._icon_loaded = True
-                debug_print(f"图标加载成功(background): {icon_source}")
-            except Exception as e:
-                debug_print(f"图标加载失败: {icon_source}, 错误: {e}")
-        
-        # 如果没有图标，用emoji
-        if not self._icon_loaded:
-            emoji_map = {
-                '登录账号': '👤', '一键日常': '📋', '批量养号': '👥',
-                '植物升阶': '🌱', '装扮合成': '👗', '追击刷分': '🏆',
-                '无尽商店': '🏪', '无尽刷币': '💰', '转基因': '🧬',
-                '活动领取': '🎁', '存档管理': '💾', '停止脚本': '⏹️'
-            }
-            self.text = f"{emoji_map.get(text, '📱')}\n{text}"
-        else:
-            # 有图标时，文字在图标下方
-            self.text = f"\n\n\n\n\n{text}"
-        
-        # 绘制圆形背景
-        with self.canvas.before:
-            Color(*get_color_from_hex(COLORS['icon_bg']))
-            # 圆形背景，居中，大小70x70
-            self.circle = Ellipse(
-                pos=(self.center_x - 35, self.top - 80),
-                size=(70, 70)
-            )
-        
-        self.bind(pos=self._update_circle, size=self._update_circle)
-        self.bind(on_press=self._on_press)
-        self.bind(on_release=self._on_release)
-    
-    def _update_circle(self, instance, value):
-        """更新圆形背景位置"""
-        if hasattr(self, 'circle'):
-            self.circle.pos = (self.center_x - 35, self.top - 80)
-            self.circle.size = (70, 70)
-    
-    def _on_press(self, instance):
-        """按下时改变颜色"""
-        self.canvas.before.clear()
-        with self.canvas.before:
-            Color(*get_color_from_hex(COLORS['icon_bg_pressed']))
-            self.circle = Ellipse(
-                pos=(self.center_x - 35, self.top - 80),
-                size=(70, 70)
-            )
-    
-    def _on_release(self, instance):
-        """释放时恢复颜色"""
-        self.canvas.before.clear()
-        with self.canvas.before:
-            Color(*get_color_from_hex(COLORS['icon_bg']))
-            self.circle = Ellipse(
-                pos=(self.center_x - 35, self.top - 80),
-                size=(70, 70)
-            )
 
 
 class LogOutput(ScrollView):
@@ -172,7 +74,7 @@ class LogOutput(ScrollView):
         self.log_label = Label(
             text='',
             font_name='ChineseFont',
-            font_size='10sp',
+            font_size='11sp',
             color=get_color_from_hex(COLORS['text']),
             size_hint_y=None,
             size_hint_x=1,
@@ -203,7 +105,7 @@ class LogOutput(ScrollView):
 
 
 class MainScreen(BoxLayout):
-    """主界面 - 大学狗工具风格 V7"""
+    """主界面"""
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -211,32 +113,26 @@ class MainScreen(BoxLayout):
         self.padding = 15
         self.spacing = 10
         
-        # 资源管理器
         self.script_interface = None
         if SCRIPT_AVAILABLE:
             self.script_interface = ScriptInterface(log_callback=self._on_script_log)
         
         # 创建界面
         self._create_header()
-        self._create_icon_area()
+        self._create_button_area()
         self._create_log_area()
         self._create_input_area()
-        
-        # 输出调试日志
-        for log in debug_logs:
-            self.log_output.append_log(log, '#888888')
     
     def _create_header(self):
         """创建顶部标题区域"""
-        header = BoxLayout(orientation='vertical', size_hint_y=None, height=75, spacing=5)
+        header = BoxLayout(orientation='vertical', size_hint_y=None, height=80, spacing=5)
         
         # 标题行
-        title_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=32)
-        
+        title_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=35)
         title = Label(
             text='PVZ2 工具',
             font_name='ChineseFont',
-            font_size='22sp',
+            font_size='24sp',
             color=get_color_from_hex(COLORS['text']),
             size_hint_x=0.6,
             halign='left',
@@ -247,99 +143,91 @@ class MainScreen(BoxLayout):
         self.status_label = Label(
             text='在线加载中...',
             font_name='ChineseFont',
-            font_size='13sp',
+            font_size='14sp',
             color=get_color_from_hex(COLORS['text_dim']),
             size_hint_x=0.4,
             halign='right'
         )
         title_row.add_widget(self.status_label)
-        
         header.add_widget(title_row)
         
         # 用户名行
-        user_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=28, spacing=8)
-        user_icon = Label(text='🍀', font_size='18sp', size_hint_x=None, width=28)
+        user_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=30, spacing=8)
+        user_icon = Label(text='🍀', font_size='20sp', size_hint_x=None, width=30)
         user_row.add_widget(user_icon)
-        
         user_label = Label(
             text='幸运儿',
             font_name='ChineseFont',
-            font_size='16sp',
+            font_size='18sp',
             color=get_color_from_hex(COLORS['green']),
             halign='left'
         )
         user_row.add_widget(user_label)
-        
         header.add_widget(user_row)
         
         self.add_widget(header)
     
-    def _get_icon_path(self, icon_name):
-        """获取图标路径"""
-        if not icon_name:
-            return None
-        path = os.path.join(RESOURCE_PATH, f'icon_{icon_name}.png')
-        if os.path.exists(path):
-            return path
-        debug_print(f"未找到图标: {icon_name}, 路径: {path}")
-        return None
-    
-    def _create_icon_area(self):
-        """创建功能图标区域"""
-        # 图标区域标题
-        title_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=25)
+    def _create_button_area(self):
+        """创建功能按钮区域"""
+        # 标题
         title = Label(
             text='功能菜单',
             font_name='ChineseFont',
-            font_size='14sp',
+            font_size='15sp',
             color=get_color_from_hex(COLORS['accent']),
+            size_hint_y=None,
+            height=25,
             halign='left'
         )
-        title_row.add_widget(title)
-        self.add_widget(title_row)
+        self.add_widget(title)
         
-        # 图标网格
-        icon_scroll = ScrollView(size_hint_y=None, height=250, do_scroll_x=False)
-        icon_grid = GridLayout(
+        # 按钮网格
+        btn_scroll = ScrollView(size_hint_y=None, height=280, do_scroll_x=False)
+        btn_grid = GridLayout(
             cols=3,
             spacing=10,
             padding=[5, 5, 5, 5],
             size_hint_y=None
         )
-        icon_grid.bind(minimum_height=icon_grid.setter('height'))
+        btn_grid.bind(minimum_height=btn_grid.setter('height'))
         
-        # 菜单配置
+        # 菜单配置：(名称, 菜单路径, emoji)
         menu_items = [
-            ('登录账号', ['32'], 'diamond'),
-            ('一键日常', ['30'], 'coin'),
-            ('批量养号', ['31'], None),
-            ('植物升阶', ['17', '2'], 'book'),
-            ('装扮合成', ['17', '3'], 'costume'),
-            ('追击刷分', ['5', '1'], 'pursuit'),
-            ('无尽商店', ['6', '5'], 'endless'),
-            ('无尽刷币', ['6', '2'], 'coin'),
-            ('转基因', ['17', '1'], 'gene'),
-            ('活动领取', ['1'], 'ticket'),
-            ('存档管理', ['18'], None),
-            ('停止脚本', ['__stop__'], None),
+            ('登录账号', ['32'], '👤'),
+            ('一键日常', ['30'], '📋'),
+            ('批量养号', ['31'], '👥'),
+            ('植物升阶', ['17', '2'], '🌱'),
+            ('装扮合成', ['17', '3'], '👗'),
+            ('追击刷分', ['5', '1'], '🏆'),
+            ('无尽商店', ['6', '5'], '🏪'),
+            ('无尽刷币', ['6', '2'], '💰'),
+            ('转基因', ['17', '1'], '🧬'),
+            ('活动领取', ['1'], '🎁'),
+            ('存档管理', ['18'], '💾'),
+            ('停止脚本', ['__stop__'], '⏹️'),
         ]
         
-        for name, menu_path, icon_name in menu_items:
-            icon_path = self._get_icon_path(icon_name)
-            btn = IconButton(
-                text=name,
-                icon_source=icon_path,
+        for name, menu_path, emoji in menu_items:
+            btn = Button(
+                text=f'{emoji}\n{name}',
+                font_name='ChineseFont',
+                font_size='13sp',
+                color=get_color_from_hex(COLORS['text']),
+                size_hint=(1, None),
+                height=80,
+                background_normal='',
+                background_color=get_color_from_hex(COLORS['btn_bg']),
                 on_press=lambda x, mp=menu_path: self._on_menu_click(mp)
             )
-            icon_grid.add_widget(btn)
+            btn_grid.add_widget(btn)
         
-        icon_scroll.add_widget(icon_grid)
-        self.add_widget(icon_scroll)
+        btn_scroll.add_widget(btn_grid)
+        self.add_widget(btn_scroll)
     
     def _create_log_area(self):
         """创建日志输出区域"""
-        # 日志标题
-        log_title_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=25)
+        # 标题行
+        log_title_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=28)
         log_title = Label(
             text='运行日志',
             font_name='ChineseFont',
@@ -354,7 +242,7 @@ class MainScreen(BoxLayout):
             font_name='ChineseFont',
             font_size='12sp',
             size_hint=(None, None),
-            size=(45, 22),
+            size=(50, 25),
             background_normal='',
             background_color=get_color_from_hex('#fce7f3'),
             color=get_color_from_hex(COLORS['text']),
@@ -363,23 +251,16 @@ class MainScreen(BoxLayout):
         log_title_row.add_widget(clear_btn)
         self.add_widget(log_title_row)
         
-        # 日志卡片
-        log_card = BoxLayout(size_hint_y=1, padding=8)
-        with log_card.canvas.before:
-            Color(*get_color_from_hex(COLORS['card']))
-            self.log_rect = RoundedRectangle(pos=log_card.pos, size=log_card.size, radius=[8])
-        log_card.bind(pos=self._update_log_rect, size=self._update_log_rect)
-        
+        # 日志区域
         self.log_output = LogOutput()
-        log_card.add_widget(self.log_output)
-        self.add_widget(log_card)
+        self.add_widget(self.log_output)
     
     def _create_input_area(self):
         """创建输入区域"""
-        input_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=40, spacing=8)
+        input_row = BoxLayout(orientation='horizontal', size_hint_y=None, height=45, spacing=8)
         self.input_field = TextInput(
             font_name='ChineseFont',
-            font_size='12sp',
+            font_size='13sp',
             background_color=get_color_from_hex(COLORS['card']),
             foreground_color=get_color_from_hex(COLORS['text']),
             cursor_color=get_color_from_hex(COLORS['accent']),
@@ -391,9 +272,9 @@ class MainScreen(BoxLayout):
         send_btn = Button(
             text='发送',
             font_name='ChineseFont',
-            font_size='13sp',
+            font_size='14sp',
             size_hint=(None, None),
-            size=(55, 36),
+            size=(60, 40),
             background_normal='',
             background_color=get_color_from_hex(COLORS['accent']),
             color=get_color_from_hex(COLORS['text_light']),
@@ -401,10 +282,6 @@ class MainScreen(BoxLayout):
         )
         input_row.add_widget(send_btn)
         self.add_widget(input_row)
-    
-    def _update_log_rect(self, instance, value):
-        self.log_rect.pos = instance.pos
-        self.log_rect.size = instance.size
     
     def _on_menu_click(self, menu_path):
         """菜单点击事件"""
@@ -414,7 +291,6 @@ class MainScreen(BoxLayout):
         
         self.log_output.append_log(f'执行功能: {menu_path}', COLORS['accent'])
         
-        # 在新线程中执行
         threading.Thread(target=self._run_script_function, args=(menu_path,), daemon=True).start()
     
     def _run_script_function(self, menu_path):
@@ -424,13 +300,11 @@ class MainScreen(BoxLayout):
                 self.log_output.append_log('脚本接口不可用', COLORS['red'])
                 return
             
-            # 如果脚本未运行，先启动
             if not self.script_interface.is_running:
                 self.log_output.append_log('启动脚本进程...', COLORS['blue'])
                 self.script_interface.start()
                 time.sleep(3)
             
-            # 运行功能
             self.script_interface.run_function(menu_path)
             
         except Exception as e:
@@ -455,7 +329,6 @@ class MainScreen(BoxLayout):
             self.log_output.append_log(f'> {command}', COLORS['blue'])
             self.input_field.text = ''
             
-            # 发送到脚本
             if self.script_interface and self.script_interface.is_running:
                 self.script_interface.send_input(command)
             else:
